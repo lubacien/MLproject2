@@ -1,4 +1,24 @@
 # Helper functions
+import matplotlib.image as mpimg
+import numpy as np
+import os,sys
+
+def load_images(n):
+    # Load a set of images
+    root_dir = "../data/training/"
+
+    image_dir = root_dir + "images/"
+    files = os.listdir(image_dir)
+
+    print("Loading " + str(n) + " images")
+    imgs = [load_image(image_dir + files[i]) for i in range(n)]
+
+
+    gt_dir = root_dir + "groundtruth/"
+    print("Loading " + str(n) + " images")
+    gt_imgs = [load_image(gt_dir + files[i]) for i in range(n)]
+
+    return imgs, gt_imgs
 
 def load_image(infilename):
     data = mpimg.imread(infilename)

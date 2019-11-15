@@ -1,23 +1,28 @@
-%matplotlib inline
-import matplotlib.image as mpimg
-import numpy as np
+
+
 import matplotlib.pyplot as plt
-import os,sys
+
 from PIL import Image
 
-# Loaded a set of images
-root_dir = "Datasets/training/"
+from helpers import *
+from preprocessing import *
 
-image_dir = root_dir + "images/"
-files = os.listdir(image_dir)
-n = min(20, len(files)) # Load maximum 20 images
-print("Loading " + str(n) + " images")
-imgs = [load_image(image_dir + files[i]) for i in range(n)]
-print(files[0])
 
-gt_dir = root_dir + "groundtruth/"
-print("Loading " + str(n) + " images")
-gt_imgs = [load_image(gt_dir + files[i]) for i in range(n)]
-print(files[0])
 
-n = 10 # Only use 10 images for training
+n = 20 # Load maximum 20 images
+
+imgs, gt_imgs = load_images(n)
+
+# Extract patches from input images
+patch_size = 16 # each patch is 16*16 pixels
+
+img_patches = [img_crop(imgs[i], patch_size, patch_size) for i in range(n)]
+gt_patches = [img_crop(gt_imgs[i], patch_size, patch_size) for i in range(n)]
+
+print(np.array(img_patches).shape)
+
+# Linearize list of patches
+img_patches = np.asarray([img_patches[i][j] for i in range(len(img_patches)) for j in range(len(img_patches[i]))])
+gt_patches =  np.asarray([gt_patches[i][j] for i in range(len(gt_patches)) for j in range(len(gt_patches[i]))])
+
+print(img_patches.shape)
