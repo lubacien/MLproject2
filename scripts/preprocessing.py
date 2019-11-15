@@ -1,3 +1,4 @@
+import numpy as np
 
 # Extract 6-dimensional features consisting of average RGB color as well as variance
 def extract_features(img):
@@ -19,3 +20,12 @@ def extract_img_features(filename):
     img_patches = img_crop(img, patch_size, patch_size)
     X = np.asarray([ extract_features_2d(img_patches[i]) for i in range(len(img_patches))])
     return X
+
+#classifying ground truth patches:
+def value_to_class(v):
+    foreground_threshold=0.25
+    df = np.sum(v)
+    if df > foreground_threshold:
+        return 1
+    else:
+        return 0
