@@ -3,6 +3,12 @@ import matplotlib.image as mpimg
 import numpy as np
 import os,sys
 
+
+
+def load_image(infilename):
+    data = mpimg.imread(infilename)
+    return data
+
 def load_images(n):
     # Load a set of images
     root_dir = "../data/training/"
@@ -19,10 +25,6 @@ def load_images(n):
     gt_imgs = [load_image(gt_dir + files[i]) for i in range(n)]
 
     return imgs, gt_imgs
-
-def load_image(infilename):
-    data = mpimg.imread(infilename)
-    return data
 
 def img_float_to_uint8(img):
     rimg = img - np.min(img)
