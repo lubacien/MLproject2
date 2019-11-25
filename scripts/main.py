@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 from PIL import Image
 from sklearn import linear_model
+import sklearn as sk
 from helpers import *
 from preprocessing import *
 from mask_to_submission import *
@@ -12,8 +13,7 @@ from imaging import *
 import numpy as np
 import matplotlib.image as mpimg
 
-
-n = 100 # number of images to be loaded
+n=100 #number of images used for validation and training
 
 imgs, gt_imgs = load_images(n)
 print(np.array(imgs).shape)
@@ -45,10 +45,20 @@ Y1 = [i for i, j in enumerate(Y) if j == 1]
 print('Class 0: ' + str(len(Y0)) + ' samples')
 print('Class 1: ' + str(len(Y1)) + ' samples')
 
+for i in range(10):
+    kneighbors= sk.neighbors.KNeighborsClassifier(n_neighbors=1+2*i)
+    kneighbors.fit(X,Y)
+    print(kneighbors.score(X,Y))
 
+'''
 #training the model
 logreg = linear_model.LogisticRegression(C=1e5, class_weight="balanced")
 logreg.fit(X, Y)
+for i in range(10):
+    logreg=linear_model.LogisticRegression(C=np.power(10,i), class_weight="balanced")
+    logreg.fit(X, Y)
+    print(logreg.score(X,Y))
+'''
 
 #creating submission images
 
@@ -56,16 +66,13 @@ for i in range(1, 51):
     image_filename = '../data/test_set_images/test_' + str(i) + '/test_'+ str(i) +'.png'
 
     test=extract_img_features(image_filename,patch_size)
-    pred=logreg.predict(test)
-    #pred[np.where(pred == 0)] = 0
-    #pred[np.where(pred == 1)] = 254
+    pred=kneighbors.predict(test)
     image = load_image(image_filename)
     w = image.shape[0]
     h = image.shape[1]
     predicted_im = label_to_img(w, h, patch_size, patch_size, pred)
     predicted_im = binary_to_uint8(predicted_im)
     Image.fromarray(predicted_im).save('../data/submission/prediction' + '%.3d' % i + '.png')
-    #mpimg.imsave('../data/submission/predictionim' + '%.3d' % i + '.png', predicted_im,vmin=0,vmax=255)
 
 #creating submission file
 submission_filename = '../data/submission.csv'
