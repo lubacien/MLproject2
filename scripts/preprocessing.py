@@ -19,7 +19,7 @@ def extract_features_2d(img):
 def extract_img_features(filename,patch_size):
     img = load_image(filename)
     img_patches = img_crop(img, patch_size, patch_size)
-    X = np.asarray([ extract_features_2d(img_patches[i]) for i in range(len(img_patches))])
+    X = np.asarray([ extract_features(img_patches[i]) for i in range(len(img_patches))])
     return X
 
 #classifying ground truth patches:
@@ -30,3 +30,10 @@ def value_to_class(v):
         return 1
     else:
         return 0
+
+# Extract class from ground truth image
+def ground_truth(filename,patch_size):
+    gt_img = load_image(filename)
+    img_patches = img_crop(gt_img, patch_size, patch_size)
+    X = np.asarray([value_to_class(np.mean(img_patches[i])) for i in range(len(img_patches))])
+    return X
