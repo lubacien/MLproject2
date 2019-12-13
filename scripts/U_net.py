@@ -1,174 +1,72 @@
 from tensorflow.python.keras import layers
 from tensorflow.python.keras import models
 
-img_shape = (400, 400, 3)
+def ResUNet(image_size):
+    def bn_act(x, act=True):
+        x = layers.BatchNormalization()(x)
+        if act == True:
+            x = layers.Activation("relu")(x)
+        return x
 
-def make_model1():
-    def conv_block(input_tensor, num_filters):
-        encoder = layers.Conv2D(num_filters, (3, 3), padding='same')(input_tensor)
-        encoder = layers.BatchNormalization()(encoder)
-        encoder = layers.Activation('relu')(encoder)
-        encoder = layers.Conv2D(num_filters, (3, 3), padding='same')(encoder)
-        encoder = layers.BatchNormalization()(encoder)
-        encoder = layers.Activation('relu')(encoder)
-        return encoder
+    def conv_block(x, filters, kernel_size=(3, 3), padding="same", strides=1):
+        conv = bn_act(x)
+        conv = layers.Conv2D(filters, kernel_size, padding=padding, strides=strides)(conv)
+        return conv
 
+    def stem(x, filters, kernel_size=(3, 3), padding="same", strides=1):
+        conv = layers.Conv2D(filters, kernel_size, padding=padding, strides=strides)(x)
+        conv = conv_block(conv, filters, kernel_size=kernel_size, padding=padding, strides=strides)
 
-    def encoder_block(input_tensor, num_filters):
-        encoder = conv_block(input_tensor, num_filters)
-        encoder_pool = layers.MaxPooling2D((2, 2), strides=(2, 2))(encoder)
+        shortcut = layers.Conv2D(filters, kernel_size=(1, 1), padding=padding, strides=strides)(x)
+        shortcut = bn_act(shortcut, act=False)
 
-        return encoder_pool, encoder
+        output = layers.Add()([conv, shortcut])
+        return output
 
-    def encoder_block_5x5(input_tensor, num_filters):
-        encoder = conv_block(input_tensor, num_filters)
-        encoder_pool = layers.MaxPooling2D((5, 5), strides=(5, 5))(encoder)
+    def residual_block(x, filters, kernel_size=(3, 3), padding="same", strides=1):
+        res = conv_block(x, filters, kernel_size=kernel_size, padding=padding, strides=strides)
+        res = conv_block(res, filters, kernel_size=kernel_size, padding=padding, strides=1)
 
-        return encoder_pool, encoder
+        shortcut = layers.Conv2D(filters, kernel_size=(1, 1), padding=padding, strides=strides)(x)
+        shortcut = bn_act(shortcut, act=False)
 
+        output = layers.Add()([shortcut, res])
+        return output
 
-    def decoder_block(input_tensor, concat_tensor, num_filters):
-        decoder = layers.Conv2DTranspose(num_filters, (2, 2), strides=(2, 2), padding='same')(input_tensor)
-        decoder = layers.concatenate([concat_tensor, decoder], axis=-1)
-        decoder = layers.BatchNormalization()(decoder)
-        decoder = layers.Activation('relu')(decoder)
-        decoder = layers.Conv2D(num_filters, (3, 3), padding='same')(decoder)
-        decoder = layers.BatchNormalization()(decoder)
-        decoder = layers.Activation('relu')(decoder)
-        decoder = layers.Conv2D(num_filters, (3, 3), padding='same')(decoder)
-        decoder = layers.BatchNormalization()(decoder)
-        decoder = layers.Activation('relu')(decoder)
-        return decoder
+    def upsample_concat_block(x, xskip):
+        u = layers.UpSampling2D((2, 2))(x)
+        c = layers.Concatenate()([u, xskip])
+        return c
 
-    def decoder_block_5x5(input_tensor, concat_tensor, num_filters):
-        decoder = layers.Conv2DTranspose(num_filters, (5, 5), strides=(5, 5), padding='same')(input_tensor)
-        decoder = layers.concatenate([concat_tensor, decoder], axis=-1)
-        decoder = layers.BatchNormalization()(decoder)
-        decoder = layers.Activation('relu')(decoder)
-        decoder = layers.Conv2D(num_filters, (3, 3), padding='same')(decoder)
-        decoder = layers.BatchNormalization()(decoder)
-        decoder = layers.Activation('relu')(decoder)
-        decoder = layers.Conv2D(num_filters, (3, 3), padding='same')(decoder)
-        decoder = layers.BatchNormalization()(decoder)
-        decoder = layers.Activation('relu')(decoder)
-        return decoder
+    f = [16, 32, 64, 128, 256]
+    inputs = layers.Input((image_size, image_size, 3))
 
+    ## Encoder
+    e0 = inputs
+    e1 = stem(e0, f[0])
+    e2 = residual_block(e1, f[1], strides=2)
+    e3 = residual_block(e2, f[2], strides=2)
+    e4 = residual_block(e3, f[3], strides=2)
+    e5 = residual_block(e4, f[4], strides=2)
 
-    inputs = layers.Input(shape=img_shape)
-    # 400
-    print(inputs.shape)
-    encoder0_pool, encoder0 = encoder_block(inputs, 32)
-    # 200
-    print(encoder0_pool.shape)
-    encoder1_pool, encoder1 = encoder_block(encoder0_pool, 64)
-    # 100
-    print(encoder1_pool.shape)
-    encoder2_pool, encoder2 = encoder_block(encoder1_pool, 128)
-    # 50
-    print(encoder2_pool.shape)
-    encoder3_pool, encoder3 = encoder_block(encoder2_pool, 256)
-    # 25
-    print(encoder3_pool.shape)
-    encoder4_pool, encoder4 = encoder_block_5x5(encoder3_pool, 512)
-    # 5
-    print(encoder4_pool.shape)
-    center = conv_block(encoder4_pool, 1024)
-    # center
-    print(center.shape)
-    decoder4 = decoder_block_5x5(center, encoder4, 512)
-    # 25
-    print(decoder4.shape)
-    decoder3 = decoder_block(decoder4, encoder3, 256)
-    # 32
-    print(decoder3.shape)
-    decoder2 = decoder_block(decoder3, encoder2, 128)
-    # 64
-    print(decoder2.shape)
-    decoder1 = decoder_block(decoder2, encoder1, 64)
-    # 128
-    print(decoder1.shape)
-    decoder0 = decoder_block(decoder1, encoder0, 32)
-    # 256
-    print(decoder0.shape)
-    outputs = layers.Conv2D(1, (1, 1), activation='sigmoid')(decoder0)
-    print(outputs.shape)
+    ## Bridge
+    b0 = conv_block(e5, f[4], strides=1)
+    b1 = conv_block(b0, f[4], strides=1)
 
-    model = models.Model(inputs=[inputs], outputs=[outputs])
-    return model
+    ## Decoder
+    u1 = upsample_concat_block(b1, e4)
+    d1 = residual_block(u1, f[4])
 
-def make_model2():
-    def conv_block(input_tensor, num_filters):
-        encoder = layers.Conv2D(num_filters, (3, 3), padding='same')(input_tensor)
-        encoder = layers.BatchNormalization()(encoder)
-        encoder = layers.Activation('relu')(encoder)
-        return encoder
+    u2 = upsample_concat_block(d1, e3)
+    d2 = residual_block(u2, f[3])
 
+    u3 = upsample_concat_block(d2, e2)
+    d3 = residual_block(u3, f[2])
 
-    def encoder_block(input_tensor, num_filters):
-        encoder = conv_block(input_tensor, num_filters)
-        encoder_pool = layers.MaxPooling2D((2, 2), strides=(2, 2))(encoder)
+    u4 = upsample_concat_block(d3, e1)
+    d4 = residual_block(u4, f[1])
 
-        return encoder_pool, encoder
+    outputs = layers.Conv2D(1, (1, 1), padding="same", activation="sigmoid")(d4)
+    model = models.Model(inputs, outputs)
 
-    def encoder_block_5x5(input_tensor, num_filters):
-        encoder = conv_block(input_tensor, num_filters)
-        encoder_pool = layers.MaxPooling2D((5, 5), strides=(5, 5))(encoder)
-
-        return encoder_pool, encoder
-
-
-    def decoder_block(input_tensor, concat_tensor, num_filters):
-        decoder = layers.Conv2DTranspose(num_filters, (2, 2), strides=(2, 2), padding='same')(input_tensor)
-        decoder = layers.concatenate([concat_tensor, decoder], axis=-1)
-        decoder = layers.BatchNormalization()(decoder)
-        decoder = layers.Activation('relu')(decoder)
-        return decoder
-
-    def decoder_block_5x5(input_tensor, concat_tensor, num_filters):
-        decoder = layers.Conv2DTranspose(num_filters, (5, 5), strides=(5, 5), padding='same')(input_tensor)
-        decoder = layers.concatenate([concat_tensor, decoder], axis=-1)
-        decoder = layers.BatchNormalization()(decoder)
-        decoder = layers.Activation('relu')(decoder)
-        return decoder
-
-    inputs = layers.Input(shape=img_shape)
-    # 400
-    print(inputs.shape)
-    encoder0_pool, encoder0 = encoder_block(inputs, 32)
-    # 200
-    print(encoder0_pool.shape)
-    encoder1_pool, encoder1 = encoder_block(encoder0_pool, 64)
-    # 100
-    print(encoder1_pool.shape)
-    encoder2_pool, encoder2 = encoder_block(encoder1_pool, 128)
-    # 50
-    print(encoder2_pool.shape)
-    encoder3_pool, encoder3 = encoder_block(encoder2_pool, 256)
-    # 25
-    print(encoder3_pool.shape)
-    encoder4_pool, encoder4 = encoder_block_5x5(encoder3_pool, 512)
-    # 5
-    print(encoder4_pool.shape)
-    center = conv_block(encoder4_pool, 1024)
-    # center
-    print(center.shape)
-    decoder4 = decoder_block_5x5(center, encoder4, 512)
-    # 25
-    print(decoder4.shape)
-    decoder3 = decoder_block(decoder4, encoder3, 256)
-    # 32
-    print(decoder3.shape)
-    decoder2 = decoder_block(decoder3, encoder2, 128)
-    # 64
-    print(decoder2.shape)
-    decoder1 = decoder_block(decoder2, encoder1, 64)
-    # 128
-    print(decoder1.shape)
-    decoder0 = decoder_block(decoder1, encoder0, 32)
-    # 256
-    print(decoder0.shape)
-    outputs = layers.Conv2D(1, (1, 1), activation='sigmoid')(decoder0)
-    print(outputs.shape)
-
-    model = models.Model(inputs=[inputs], outputs=[outputs])
     return model
