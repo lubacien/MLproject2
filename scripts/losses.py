@@ -24,17 +24,21 @@ def bce(y_true,y_pred):
     return loss
 
 def f1_score(y_true, y_pred):
-
+    '''
     TP = tfK.sum(tfK.round(tfK.clip(y_true * y_pred, 0, 1)))
     TPTN = tfK.sum(tfK.round(tfK.clip(y_pred, 0, 1)))
     TPFN = tfK.sum(tfK.round(tfK.clip(y_true, 0, 1)))
+    '''
 
+    TP = tfK.sum(y_true * y_pred)
+    TPFP = tfK.sum(y_pred)
+    TPFN = tfK.sum(y_true)
     # F1=0 when there is no true sample
     if TPFN == 0:
         return 0
 
-    # truepositives/truepositives+truenegatives
-    precision = TP / TPTN
+    # truepositives/truepositives+falsepositives
+    precision = TP / TPFP
 
     # truepositives/truepositives+falsenegatives
     recall = TP / TPFN
@@ -43,6 +47,6 @@ def f1_score(y_true, y_pred):
     f1_score = 2 * (precision * recall) / (precision + recall)
     return f1_score
 
-def f1_loss(y_true,y_pred)
+def f1_loss(y_true,y_pred):
     return 1-f1_score(y_true,y_pred)
 
