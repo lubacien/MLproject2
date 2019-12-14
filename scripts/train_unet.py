@@ -63,7 +63,7 @@ valid_steps = len(valid_ids)//batch_size
 model=ResUNet(image_size)
 model.compile('adam',loss=dice_loss,metrics=[dice_loss])
 
-model.fit_generator(train_gen, validation_data=valid_gen, steps_per_epoch=train_steps, validation_steps=valid_steps,
+history=model.fit_generator(train_gen, validation_data=valid_gen, steps_per_epoch=train_steps, validation_steps=valid_steps,
                     epochs=epochs,callbacks= [cp])
 
 dice = history.history['dice_loss']
