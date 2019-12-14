@@ -14,13 +14,14 @@ from losses import *
 import os
 import sys
 import random
-
+from datagen import *
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow import keras
-from datagen import *
+from random import shuffle
+from losses import *
 
 ## Seeding
 seed = 2
@@ -33,61 +34,37 @@ dataset_path = "../data/"
 train_path = os.path.join(dataset_path, "training/")
 #test_path = os.path.join(dataset_path, "test/")
 
-imgs = []
-labels=[]
-imgpath = train_path + 'images/'
-labelpath = train_path + 'groundtruth/'
-files = os.listdir(imgpath)
+train_ids = []
+path = train_path + 'images'
+
+files = os.listdir(path)
 for name in files:
-    imgs.append(np.asarray(cv2.imread(imgpath+name)))
-    labels.append(cv2.imread(labelpath+name))
+    train_ids.append(name)
+
+random.Random(seed).shuffle(train_ids)
 
 image_size = 400
-batch_size = 16
+batch_size = 3
+
 val_data_size = 10
-#shuffle first
-valid_imgs = imgs[:val_data_size]
-train_imgs = imgs[val_data_size:]
-valid_labels=labels[:val_data_size]
-train_labels=labels[val_data_size:]
 
-model = ResUNet(400)
-
-model.compile(optimizer='adam', loss=dice_loss, metrics=[dice_loss])
-
-model.summary()
+valid_ids = train_ids[:val_data_size]
+train_ids = train_ids[val_data_size:]
 
 save_model_path = '/tmp/weights.h5'
 cp = tf.keras.callbacks.ModelCheckpoint(filepath=save_model_path, monitor='val_dice_loss', save_best_only=True, verbose=1)
-'''
-#Loading the dataset:
-img_dir='../data/training/images/'
-label_dir='../data/training/groundtruth/'
-x_train_filenames = []
-y_train_filenames = []
 
-for img_id in range(1,num_images+1):
-  x_train_filenames.append(os.path.join(img_dir, "satImage_%.3d" % img_id + ".png"))
-  y_train_filenames.append(os.path.join(label_dir, "satImage_%.3d" % img_id + ".png"))
+train_gen = DataGen(train_ids, train_path, image_size=image_size, batch_size=batch_size)
+valid_gen = DataGen(valid_ids, train_path, image_size=image_size, batch_size=batch_size)
 
-x_train_filenames, x_val_filenames, y_train_filenames, y_val_filenames = \
-                    train_test_split(x_train_filenames, y_train_filenames, test_size=0.2, random_state=42)
+train_steps = len(train_ids)//batch_size
+valid_steps = len(valid_ids)//batch_size
 
-train_ds = get_baseline_dataset(x_train_filenames,
-                                y_train_filenames,
-                                batch_size=batch_size)
-val_ds = get_baseline_dataset(x_val_filenames,
-                                y_val_filenames,
-                                batch_size=batch_size)
+model=ResUNet(image_size)
+model.compile('adam',loss=dice_loss,metrics=[dice_loss])
 
-'''
-
-history = model.fit(train_imgs, train_labels,
-                   steps_per_epoch=int(np.ceil(len(imgs) / float(batch_size))),
-                   epochs=epochs,
-                   #validation_data=valid_imgs,
-                   #validation_steps=int(np.ceil(len(imgs) / float(batch_size))),
-                   callbacks=[cp])
+model.fit_generator(train_gen, validation_data=valid_gen, steps_per_epoch=train_steps, validation_steps=valid_steps,
+                    epochs=epochs,callbacks= [cp])
 
 dice = history.history['dice_loss']
 val_dice = history.history['val_dice_loss']
