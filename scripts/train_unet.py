@@ -1,34 +1,23 @@
-import os
-import glob
-import zipfile
-import functools
-
-import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib as mpl
 mpl.rcParams['axes.grid'] = False
 mpl.rcParams['figure.figsize'] = (12,12)
-from sklearn.model_selection import train_test_split
 from U_net import *
 from losses import *
 import os
-import sys
 import random
 from datagen import *
 import numpy as np
-import cv2
 import matplotlib.pyplot as plt
 import tensorflow as tf
-from tensorflow import keras
-from random import shuffle
 from losses import *
+
 
 ## Seeding
 seed = 2
 random.seed = seed
 np.random.seed = seed
 tf.seed = seed
-epochs = 5
+epochs = 30
 
 dataset_path = "../data/"
 train_path = os.path.join(dataset_path, "training/")
@@ -44,7 +33,7 @@ for name in files:
 random.Random(seed).shuffle(train_ids)
 
 image_size = 400
-batch_size = 3
+batch_size = 6
 
 val_data_size = 10
 
@@ -61,7 +50,7 @@ train_steps = len(train_ids)//batch_size
 valid_steps = len(valid_ids)//batch_size
 
 model=ResUNet(image_size)
-model.compile('adam',loss=dice_loss,metrics=[dice_loss])
+model.compile('adam',loss=bce_dice_loss, metrics=[dice_loss, bce, tf.keras.metrics.Accuracy(), tf.keras.metrics.Precision(), tf.keras.metrics.Recall(), f1_score])
 
 history=model.fit_generator(train_gen, validation_data=valid_gen, steps_per_epoch=train_steps, validation_steps=valid_steps,
                     epochs=epochs,callbacks= [cp])
@@ -88,3 +77,4 @@ plt.legend(loc='upper right')
 plt.title('Training and Validation Loss')
 
 plt.show()
+plt.savefig('Loss.png')

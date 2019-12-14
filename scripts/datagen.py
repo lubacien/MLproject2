@@ -18,11 +18,9 @@ class DataGen(keras.utils.Sequence):
 
         ## Reading Image
         image = cv2.imread(image_path)
-        # image = cv2.resize(image, (self.image_size, self.image_size))
 
         ##Reading Mask
         mask = cv2.imread(mask_path, 0)
-        # mask = cv2.resize(mask, (self.image_size, self.image_size))
         mask = np.expand_dims(mask, axis=-1)
 
         ## Normalizaing
