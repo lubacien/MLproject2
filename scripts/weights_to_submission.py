@@ -100,7 +100,7 @@ def predict_resized(img, model):
     out=cv2.resize(out,(608,608))
     return out
 
-save_model_path = '../results/weights_5epochs_100images.h5'
+save_model_path = '../results/weights30epochs100imagesbce.h5'
 model = ResUNet(400)
 model.load_weights(save_model_path)
 

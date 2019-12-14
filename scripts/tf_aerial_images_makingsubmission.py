@@ -31,7 +31,7 @@ VALIDATION_SIZE = 5  # Size of the validation set.
 SEED = 66478  # Set to None for random seed.
 BATCH_SIZE = 16  # 64
 NUM_EPOCHS = 100
-RESTORE_MODEL = False  # If True, restore existing model instead of training a new one
+RESTORE_MODEL = True  # If True, restore existing model instead of training a new one
 RECORDING_STEP = 0
 
 # Set image patch size in pixels
@@ -205,7 +205,9 @@ def main(argv=None):  # pylint: disable=unused-argument
 
     # Extract it into numpy arrays.
     train_data = extract_data(train_data_filename, TRAINING_SIZE)
+    print('tdsghape=' + str(train_data.shape))
     train_labels = extract_labels(train_labels_filename, TRAINING_SIZE)
+    print('labelghape=' + str(train_labels.shape))
 
     test_data_filename = '../data/test_set_images/'
 
@@ -341,6 +343,7 @@ def main(argv=None):  # pylint: disable=unused-argument
         # 2D convolution, with 'SAME' padding (i.e. the output feature map has
         # the same size as the input). Note that {strides} is a 4D array whose
         # shape matches the data layout: [image index, y, x, depth].
+
         conv = tf.nn.conv2d(data,
                             conv1_weights,
                             strides=[1, 1, 1, 1],
@@ -365,11 +368,13 @@ def main(argv=None):  # pylint: disable=unused-argument
                                padding='SAME')
 
         # Uncomment these lines to check the size of each layer
-        # print 'data ' + str(data.get_shape())
-        # print 'conv ' + str(conv.get_shape())
-        # print 'relu ' + str(relu.get_shape())
-        # print 'pool ' + str(pool.get_shape())
-        # print 'pool2 ' + str(pool2.get_shape())
+        print( 'data ' + str(data.get_shape()))
+        print ('conv ' + str(conv.get_shape()))
+        print( 'relu ' + str(relu.get_shape()))
+        print( 'pool ' + str(pool.get_shape()))
+        print('conv2 ' + str(conv2.get_shape()))
+        print('relu2 ' + str(relu2.get_shape()))
+        print( 'pool2 ' + str(pool2.get_shape()))
 
         # Reshape the feature map cuboid into a 2D matrix to feed it to the
         # fully connected layers.
@@ -402,6 +407,7 @@ def main(argv=None):  # pylint: disable=unused-argument
         return out
 
     # Training computation: logits + cross-entropy loss.
+    print('prout')
     logits = model(train_data_node, True)  # BATCH_SIZE*NUM_LABELS
     # print 'logits = ' + str(logits.get_shape()) + ' train_labels_node = ' + str(train_labels_node.get_shape())
 

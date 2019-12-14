@@ -43,3 +43,6 @@ def f1_score(y_true, y_pred):
     f1_score = 2 * (precision * recall) / (precision + recall)
     return f1_score
 
+def f1_loss(y_true,y_pred)
+    return 1-f1_score(y_true,y_pred)
+
