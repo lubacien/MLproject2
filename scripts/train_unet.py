@@ -30,7 +30,7 @@ np.random.seed = seed
 tf.seed = seed
 epochs = 5
 
-dataset_path = "../data/"
+dataset_path = "../../drive/My Drive/data/"
 train_path = os.path.join(dataset_path, "training/")
 #test_path = os.path.join(dataset_path, "test/")
 
