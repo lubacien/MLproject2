@@ -50,7 +50,7 @@ def f1_score(y_true, y_pred):
 def origf1_score(y_true, y_pred):
 
     TP = tfK.sum(tfK.round(tfK.clip(y_true * y_pred, 0, 1)))
-    TPTN = tfK.sum(tfK.round(tfK.clip(y_pred, 0, 1)))
+    TPFP = tfK.sum(tfK.round(tfK.clip(y_pred, 0, 1)))
     TPFN = tfK.sum(tfK.round(tfK.clip(y_true, 0, 1)))
 
     # F1=0 when there is no true sample
@@ -74,7 +74,7 @@ def f1_loss(y_true,y_pred):
 def f1_score_noclip(y_true, y_pred):
 
     TP = tfK.sum(tfK.round(y_true * y_pred, 0, 1))
-    TPTN = tfK.sum(tfK.round(y_pred, 0, 1))
+    TPFP = tfK.sum(tfK.round(y_pred, 0, 1))
     TPFN = tfK.sum(tfK.round(y_true, 0, 1))
 
     # F1=0 when there is no true sample
