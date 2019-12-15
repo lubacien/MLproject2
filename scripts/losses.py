@@ -73,9 +73,9 @@ def f1_loss(y_true,y_pred):
 
 def f1_score_noclip(y_true, y_pred):
 
-    TP = tfK.sum(tfK.round(y_true * y_pred, 0, 1))
-    TPFP = tfK.sum(tfK.round(y_pred, 0, 1))
-    TPFN = tfK.sum(tfK.round(y_true, 0, 1))
+    TP = tfK.sum(tfK.round(y_true * y_pred))
+    TPFP = tfK.sum(tfK.round(y_pred))
+    TPFN = tfK.sum(tfK.round(y_true))
 
     # F1=0 when there is no true sample
     if TPFN == 0:
