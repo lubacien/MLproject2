@@ -32,7 +32,10 @@ def prediction_to_class(image):
                 out[i,j] = 0
     return out
 
-def getprediction(img,model):
+def getprediction_mean(img,model):
+    '''
+    Creates 608x608 prediction by splitting the prediction into 9 zones and averaging when possible.
+    '''
     #more logical but works less well than predict_test_img?
 
     #takes as input a 608x608 image and gives a 608x608 prediction based on 400x400 predictions from network
@@ -85,12 +88,13 @@ def getprediction(img,model):
     tomean[2] = preds[2,  0:192,208:400, 0]
     tomean[3] = preds[3,  0:192,0:192, 0]
     output[208:400,208:400]=np.mean(tomean,axis=0)
+    print(output.shape)
 
     return output
 
-def predict_resized(img, model):
+def getprediction_resize(img, model):
     """
-    Function that takes a 608x608 image and returns it's predicted goundtruth by predicting on resized image
+    Creates 608x608 prediction by resizing the input image and then resizing the output image
     """
     img=cv2.resize(img,(400,400))
     img=img.reshape((1,400,400,3))
@@ -100,7 +104,28 @@ def predict_resized(img, model):
     out=cv2.resize(out,(608,608))
     return out
 
-save_model_path = '../results/weights30epochs100imagesbce.h5'
+def getprediction_nomean(img, model):
+    """
+    Creates 608x608 prediction by splitting the prediction into 4 zones and taking the corresponding
+    predictions
+    """
+    sub1 = img[:400, :400]
+    sub2 = img[:400, 208:]
+    sub3 = img[208:, :400]
+    sub4 = img[208:, 208:]
+
+    pred = model.predict(np.array(([sub1, sub2, sub3, sub4])))
+
+    out = np.zeros((608, 608))
+    out[:400, :400] = pred[0,:,:,0]
+    out[:400, 208:] = pred[1,:,:,0]
+    out[208:, :400] = pred[2, :, :, 0]
+    out[208:, 208:] = pred[3,:,:,0]
+
+    print(out.shape)
+    return out
+
+save_model_path = '../results/weights_100epochs.h5'
 model = ResUNet(400)
 model.load_weights(save_model_path)
 
@@ -116,11 +141,10 @@ for i in range(1, 51):
     test_data_filename=("../data/test_set_images/test_" + str(i) + "/test_" + str(i) + ".png")
 
     img=cv2.imread(test_data_filename)
-    img=img/255.0 # we do this for resnet, trained between 0 and 1
+    img=img/255.0 # we do this because the resnet is trained between 0 and 1
 
-    pimg = getprediction(img, model)
-    print(np.unique(pimg))
-    #pimg = prediction_to_class(pimg) #ca change presque rien de faire ou pas faire ca
+    pimg = getprediction_nomean(img, model)
+    #pimg = prediction_to_class(pimg)
     pimg = img_float_to_uint8(pimg)#0-1 to 0-255
     Image.fromarray(pimg).save(prediction_training_dir + 'prediction' + '%.3d' % i + '.png')
 
