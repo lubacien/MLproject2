@@ -79,24 +79,24 @@ def UNet(image_size):
 
     return model
 
+def ResUNet(image_size, kernel_size=(3, 3), dilation_rate=(1,1)):
 
-def ResUNet(image_size, kernel_size=(3, 3),dilation_rate=(1,1)):
     def bn_act(x, act=True):
         x = layers.BatchNormalization()(x)
         if act == True:
             x = layers.Activation("relu")(x)
         return x
 
-    def conv_block(x, filters, kernel_size=kernel_size, padding="same", strides=1):
+    def conv_block(x, filters, kernel_size=kernel_size, padding="same", strides=1, dilation_rate = (1,1)):
         conv = bn_act(x)
         conv = layers.Conv2D(filters, kernel_size, padding=padding, strides=strides, dilation_rate=dilation_rate)(conv)
         return conv
 
     def stem(x, filters, kernel_size=kernel_size, padding="same", strides=1):
-        conv = layers.Conv2D(filters, kernel_size, padding=padding, strides=strides,dilation_rate=dilation_rate)(x)
-        conv = conv_block(conv, filters, kernel_size=kernel_size, padding=padding, strides=strides)
+        conv = layers.Conv2D(filters, kernel_size, padding=padding, strides=strides)(x)
+        conv = conv_block(conv, filters, kernel_size=kernel_size, padding=padding, strides=strides, dilation_rate= dilation_rate)
 
-        shortcut = layers.Conv2D(filters, kernel_size=(1, 1), padding=padding, strides=strides,dilation_rate=dilation_rate)(x)
+        shortcut = layers.Conv2D(filters, kernel_size=(1, 1), padding=padding, strides=strides, dilation_rate= dilation_rate)(x)
         shortcut = bn_act(shortcut, act=False)
 
         output = layers.Add()([conv, shortcut])
@@ -106,7 +106,7 @@ def ResUNet(image_size, kernel_size=(3, 3),dilation_rate=(1,1)):
         res = conv_block(x, filters, kernel_size=kernel_size, padding=padding, strides=strides)
         res = conv_block(res, filters, kernel_size=kernel_size, padding=padding, strides=1)
 
-        shortcut = layers.Conv2D(filters, kernel_size=(1, 1), padding=padding, strides=strides,dilation_rate=dilation_rate)(x)
+        shortcut = layers.Conv2D(filters, kernel_size=(1, 1), padding=padding, strides=strides)(x)
         shortcut = bn_act(shortcut, act=False)
 
         output = layers.Add()([shortcut, res])
