@@ -22,7 +22,7 @@ In order to run tf_aerial_images tensorflow must be downgraded. In order to get 
    pip install --upgrade tensorflow==1.13
 ```
 ### Run
-The generate our best prediction submitted on aicrowd, execute:
+To generate our best prediction submitted on aicrowd, execute:
 ```bash
    python3 run.py
 ```
