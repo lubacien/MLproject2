@@ -12,6 +12,8 @@ background.
 - Lucien Barret [@lubacien](https://github.com/lubacien)
 - Dorian Popvic[@DorianPopovic](https://github.com/DorianPopovic)
 - Théophile Bouiller[@tbouiller](https://github.com/tbouiller)
+- AiCrowd team name : theophileetlucienetdorian 
+- AiCrowd best submission id : 31607 theophile_bouiller (890)
 ### Setup environment
 The necessary can be installed using `pip` and the provided `requirements.txt`
 ```bash
