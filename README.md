@@ -26,5 +26,11 @@ The generate our best prediction submitted on aicrowd, execute:
 ```bash
    python3 run.py
 ```
-from the root directory of the project.
-The predictions are saved in the folder /submissionimages
+from the root directory of the project. This will generate the predictions using the given weights.
+The predictions are saved in the folder /submissionimages.
+
+To train the model and build the weights, execute:
+
+```bash
+   python3 train_unet.py
+```
