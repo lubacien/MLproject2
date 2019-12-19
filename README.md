@@ -7,7 +7,7 @@ In this project, we implemented and trained using sattelite images, a residual
 Unet for classifying pixels on an aerial image as either a road or
 background.
 Here is an example of our prediction on an aerial image:
-![](report/images/readme_im.png)
+|![](report/images/readme_im1.png)|![](report(images/readme_im2.png)|
 
 ### Contributors
 - Lucien Barret [@lubacien](https://github.com/lubacien)
