@@ -19,11 +19,13 @@ with zipfile.ZipFile('../data/test_set_images.zip', 'r') as zip_ref:
 PIXEL_DEPTH=255
 
 def img_float_to_uint8(img):
+    """Converts a number in the range 0-1 to a number in the range 0-255"""
     rimg = img - np.min(img)
     rimg = (rimg / np.max(rimg) * PIXEL_DEPTH).round().astype(np.uint8)
     return rimg
 
 def prediction_to_class(image):
+    """returns binary output from greyscale image"""
     threshold = 0.5
     out=np.empty(image.shape)
     for i in range(image.shape[0]):
@@ -138,7 +140,7 @@ for i in range(1, 51):
     img=cv2.imread(test_data_filename)
     img=img/255.0 # we do this because the resnet is trained between 0 and 1
     pimg = getprediction_mean(img, model)
-    pimg = img_float_to_uint8(pimg)#0-1 to 0-255
+    pimg = img_float_to_uint8(pimg)
     Image.fromarray(pimg).save(prediction_training_dir + 'prediction' + '%.3d' % i + '.png')
 
 

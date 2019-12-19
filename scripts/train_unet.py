@@ -23,12 +23,14 @@ seed = 2
 random.seed = seed
 np.random.seed = seed
 tf.seed = seed
-epochs = 30
+epochs = 100
 
 dataset_path = "../data/"
 train_path = os.path.join(dataset_path, "training/")
 
-#we perform data augmentation:
+
+#We perform data augmentation:
+
 imgs_dir='../data/training/images/'
 gt_imgs_dir='../data/training/groundtruth/'
 
@@ -37,6 +39,8 @@ generate_flipped_images(imgs_dir, gt_imgs_dir)
 generate_transposed_images(imgs_dir, gt_imgs_dir)
 generate_rotated_by_45_degrees_images(imgs_dir, gt_imgs_dir)
 print('Data augmentation finished')
+
+
 train_ids = []
 path = train_path + 'images'
 
@@ -54,7 +58,7 @@ val_data_size = 400
 valid_ids = train_ids[:val_data_size]
 train_ids = train_ids[val_data_size:]
 
-save_model_path = 'weights.h5'
+save_model_path = '/tmp/weights.h5'
 cp = tf.keras.callbacks.ModelCheckpoint(filepath=save_model_path, monitor='val_dice_loss', save_best_only=True, verbose=1)
 
 train_gen = DataGen(train_ids, train_path, image_size=image_size, batch_size=batch_size)

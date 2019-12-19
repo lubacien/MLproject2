@@ -14,9 +14,9 @@ import numpy as np
 import matplotlib.image as mpimg
 import zipfile
 
-with zipfile.ZipFile('../data/test_set_images.zip', 'r') as zip_ref:
-    zip_ref.extractall('../data')
 with zipfile.ZipFile('../data/training.zip', 'r') as zip_ref:
+    zip_ref.extractall('../data')
+with zipfile.ZipFile('../data/test_set_images.zip', 'r') as zip_ref:
     zip_ref.extractall('../data')
 
 n=100 #number of images used for validation and training
@@ -62,7 +62,6 @@ for i in range(10):
 #Fitting linear regression
 model=linear_model.LinearRegression()
 model.fit(X,Y)
-
 
 
 make_submission(model)
