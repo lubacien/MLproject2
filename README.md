@@ -21,6 +21,15 @@ In order to run tf_aerial_images tensorflow must be downgraded. In order to get 
 ```bash
    pip install --upgrade tensorflow==1.13
 ```
+## Code architecture
+In this section we explain how our project folder is organised and where to find the needed files.
+
+### Data Folder
+This folder contains the train and test data in zip archives. Rexecuting run.py will unzip these folders and make the files availible.
+
+### Scripts folder
+All our project implementations can be found inside the /scripts folder.
+
 ### Run
 To generate our best prediction submitted on aicrowd, execute:
 ```bash
