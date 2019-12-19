@@ -31,7 +31,13 @@ This folder contains the train and test data in zip archives. Rexecuting run.py 
 2. **test_set_images** : Consists of the images we use to test our model.
 
 ### Scripts folder
-All our project implementations can be found inside the /scripts folder.
+All our project implementations can be found inside the /scripts folder.$
+
+**Python executables .py**
+1.**run.py**: Generates the predicted ground truth using the weights that gave us our best prediction on Aicrowd
+2.**train_unet.py**: Trains the unet and creates new weights.
+3.**preprocessing.py**: Functions that help us preprocess the data.
+4.**image_processing.py**: Applies modifiers to the the output images.
 
 ### Run
 To generate our best prediction submitted on aicrowd, execute:
