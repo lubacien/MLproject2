@@ -11,18 +11,13 @@ from U_net import *
 from losses import *
 import cv2
 import zipfile
+import helpers
 
 
 with zipfile.ZipFile('../data/test_set_images.zip', 'r') as zip_ref:
     zip_ref.extractall('../data')
 
 PIXEL_DEPTH=255
-
-def img_float_to_uint8(img):
-    """Converts a number in the range 0-1 to a number in the range 0-255"""
-    rimg = img - np.min(img)
-    rimg = (rimg / np.max(rimg) * PIXEL_DEPTH).round().astype(np.uint8)
-    return rimg
 
 def prediction_to_class(image):
     """returns binary output from greyscale image"""

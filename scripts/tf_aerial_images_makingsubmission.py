@@ -15,6 +15,7 @@ import numpy
 import tensorflow as tf
 from mask_to_submission import *
 import zipfile
+import helpers
 
 with zipfile.ZipFile('../data/test_set_images.zip', 'r') as zip_ref:
     zip_ref.extractall('../data')
@@ -43,8 +44,9 @@ tf.app.flags.DEFINE_string('train_dir', '/tmp/segment_aerial_images',
 FLAGS = tf.app.flags.FLAGS
 
 
-# Extract patches from a given image
+
 def img_crop(im, w, h):
+    """Extract patches from a given image"""
     list_patches = []
     imgwidth = im.shape[0]
     imgheight = im.shape[1]
@@ -84,9 +86,8 @@ def extract_data(filename, num_images):
 
     return numpy.asarray(data)
 
-
-# Assign a label to a patch v
 def value_to_class(v):
+    """Assign a label to a patch v"""
     foreground_threshold = 0.25  # percentage of pixels > 1 required to assign a foreground label to a patch
     df = numpy.sum(v)
     if df > foreground_threshold:  # road
@@ -95,7 +96,6 @@ def value_to_class(v):
         return [1, 0]
 
 
-# Extract label images
 def extract_labels(filename, num_images):
     """Extract the labels into a 1-hot matrix [image index, label index]."""
     gt_imgs = []
@@ -157,13 +157,6 @@ def label_to_img(imgwidth, imgheight, w, h, labels):
             array_labels[j:j+w, i:i+h] = l
             idx = idx + 1
     return array_labels
-
-
-def img_float_to_uint8(img):
-    rimg = img - numpy.min(img)
-    rimg = (rimg / numpy.max(rimg) * PIXEL_DEPTH).round().astype(numpy.uint8)
-    return rimg
-
 
 def concatenate_images(img, gt_img):
     n_channels = len(gt_img.shape)

@@ -6,11 +6,12 @@ import os,sys
 
 
 def load_image(infilename):
+    '''Loads image from filename'''
     data = mpimg.imread(infilename)
     return data
 
 def load_images(n):
-    # Load a set of images
+    '''Load a set of images'''
     root_dir = "../data/training/"
 
     image_dir = root_dir + "images/"
@@ -27,6 +28,7 @@ def load_images(n):
     return imgs, gt_imgs
 
 def img_float_to_uint8(img):
+    '''Converts a number between 0 and 1 to a greyscale between 0 and 255'''
     rimg = img - np.min(img)
     rimg = (rimg / np.max(rimg) * 255).round().astype(np.uint8)
     return rimg
