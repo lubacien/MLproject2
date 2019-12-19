@@ -84,8 +84,8 @@ def ResUNet(image_size, kernel_size=(3, 3), dilation_rate=(1,1)):
     def bn_act(x, act=True):
         x = layers.BatchNormalization()(x)
         if act == True:
-            #x = layers.Activation("relu")(x)
-            x = layers.LeakyReLU(alpha=0.3)(x)
+            x = layers.Activation("relu")(x)
+            #x = layers.LeakyReLU(alpha=0.1)(x)
         return x
 
     def conv_block(x, filters, kernel_size=kernel_size, padding="same", strides=1, dilation_rate = (1,1)):
@@ -257,7 +257,6 @@ def ResUNet_dilation(image_size, kernel_size=(3, 3), dilation_rate=(1,1)):
     model = models.Model(inputs, outputs)
 
     return model
-
 
 def ResUNet_extralayer(image_size):
     def bn_act(x, act=True):
