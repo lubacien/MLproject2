@@ -27,10 +27,16 @@ The generate our best prediction submitted on aicrowd, execute:
    python3 run.py
 ```
 from the root directory of the project. This will generate the predictions using the given weights.
-The predictions are saved in the folder /submissionimages.
+The predictions are saved in the folder /submissionimages, a csv submission file will be created under the name submission.csv in the data/ directory.
 
 To train the model and build the weights, execute:
 
 ```bash
    python3 train_unet.py
 ```
+### Process the output images
+In order to execute a floodfill on the prediction execute:
+```bash
+   python3 image_processing.py
+```
+The floodfilled images will be saved in a new folder named sub_mod/. a new folder named mont_dir/ will contain the grouped images from the test set, predictions and floodfilled images.
