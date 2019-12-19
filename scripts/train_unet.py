@@ -10,7 +10,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from losses import *
+import zipfile
+from generate_augmented_images import *
 
+
+
+with zipfile.ZipFile('../data/training.zip', 'r') as zip_ref:
+    zip_ref.extractall('../data')
 
 ## Seeding
 seed = 2
@@ -22,6 +28,15 @@ epochs = 30
 dataset_path = "../data/"
 train_path = os.path.join(dataset_path, "training/")
 
+#we perform data augmentation:
+imgs_dir='../data/training/images/'
+gt_imgs_dir='../data/training/groundtruth/'
+
+print('Augmenting data size to 1600 images')
+generate_flipped_images(imgs_dir, gt_imgs_dir)
+generate_transposed_images(imgs_dir, gt_imgs_dir)
+generate_rotated_by_45_degrees_images(imgs_dir, gt_imgs_dir)
+print('Data augmentation finished')
 train_ids = []
 path = train_path + 'images'
 
@@ -34,12 +49,12 @@ random.Random(seed).shuffle(train_ids)
 image_size = 400
 batch_size = 6
 
-val_data_size = 200
+val_data_size = 400
 
 valid_ids = train_ids[:val_data_size]
 train_ids = train_ids[val_data_size:]
 
-save_model_path = '/tmp/weights.h5'
+save_model_path = 'weights.h5'
 cp = tf.keras.callbacks.ModelCheckpoint(filepath=save_model_path, monitor='val_dice_loss', save_best_only=True, verbose=1)
 
 train_gen = DataGen(train_ids, train_path, image_size=image_size, batch_size=batch_size)
@@ -48,8 +63,8 @@ valid_gen = DataGen(valid_ids, train_path, image_size=image_size, batch_size=bat
 train_steps = len(train_ids)//batch_size
 valid_steps = len(valid_ids)//batch_size
 
-model=ResUNet_extralayer(image_size)
-model.compile('adam',loss=bce_dice_loss, metrics=[dice_loss, bce, tf.keras.metrics.Accuracy(), tf.keras.metrics.Precision(), tf.keras.metrics.Recall()])
+model=ResUNet(image_size,kernel_size=(5,5))
+model.compile('adam',loss=bce, metrics=[dice_loss, bce, tf.keras.metrics.Accuracy(), tf.keras.metrics.Precision(), tf.keras.metrics.Recall()])
 
 history=model.fit_generator(train_gen, validation_data=valid_gen, steps_per_epoch=train_steps, validation_steps=valid_steps,
                     epochs=epochs,callbacks= [cp])
