@@ -10,6 +10,11 @@ import matplotlib.pyplot as plt
 from U_net import *
 from losses import *
 import cv2
+import zipfile
+
+
+with zipfile.ZipFile('../data/test_set_images.zip', 'r') as zip_ref:
+    zip_ref.extractall('../data')
 
 PIXEL_DEPTH=255
 

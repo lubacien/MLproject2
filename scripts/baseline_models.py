@@ -9,7 +9,6 @@ import sklearn.neighbors as neighb
 from helpers import *
 from preprocessing import *
 from mask_to_submission import *
-from submission_to_mask import *
 from imaging import *
 import numpy as np
 import matplotlib.image as mpimg
@@ -54,11 +53,10 @@ for i in range(10):
     print('score:',model.score(X,Y))
 '''
 
-'''
 #Fitting linear regression
 model=linear_model.LinearRegression()
 model.fit(X,Y)
-'''
+
 
 
 make_submission(model)
