@@ -3,7 +3,7 @@
 # EPFL Machine Learning - Road Segmentation 2019
 
 ### About the Project
-In this project, we implemented and trained using sattelite images, a residual
+In this project, we implemented and trained using satellite images, a residual
 Unet for classifying pixels on an aerial image as either a road or
 background.
 Here is an example of our prediction on an aerial image:
