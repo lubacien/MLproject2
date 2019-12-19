@@ -1,11 +1,6 @@
 """
 Baseline for machine learning project on road segmentation.
 This simple baseline consits of a CNN with two convolutional+pooling layers with a soft-max loss
-
-Credits: Aurelien Lucchi, ETH Zürich
-
-This was last tested with TensorFlow 1.13.2, which is not completely up to date.
-To 'downgrade': pip install --upgrade tensorflow==1.13.2
 """
 
 import gzip
@@ -14,11 +9,8 @@ import sys
 import urllib
 import matplotlib.image as mpimg
 from PIL import Image
-
 import code
-
 import tensorflow.python.platform
-
 import numpy
 import tensorflow as tf
 from mask_to_submission import *
@@ -407,7 +399,6 @@ def main(argv=None):  # pylint: disable=unused-argument
         return out
 
     # Training computation: logits + cross-entropy loss.
-    print('prout')
     logits = model(train_data_node, True)  # BATCH_SIZE*NUM_LABELS
     # print 'logits = ' + str(logits.get_shape()) + ' train_labels_node = ' + str(train_labels_node.get_shape())
 

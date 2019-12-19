@@ -21,7 +21,6 @@ epochs = 30
 
 dataset_path = "../data/"
 train_path = os.path.join(dataset_path, "training/")
-#test_path = os.path.join(dataset_path, "test/")
 
 train_ids = []
 path = train_path + 'images'
@@ -35,7 +34,7 @@ random.Random(seed).shuffle(train_ids)
 image_size = 400
 batch_size = 6
 
-val_data_size = 10
+val_data_size = 200
 
 valid_ids = train_ids[:val_data_size]
 train_ids = train_ids[val_data_size:]
@@ -49,7 +48,7 @@ valid_gen = DataGen(valid_ids, train_path, image_size=image_size, batch_size=bat
 train_steps = len(train_ids)//batch_size
 valid_steps = len(valid_ids)//batch_size
 
-model=UNet(image_size)
+model=ResUNet_extralayer(image_size)
 model.compile('adam',loss=bce_dice_loss, metrics=[dice_loss, bce, tf.keras.metrics.Accuracy(), tf.keras.metrics.Precision(), tf.keras.metrics.Recall()])
 
 history=model.fit_generator(train_gen, validation_data=valid_gen, steps_per_epoch=train_steps, validation_steps=valid_steps,
