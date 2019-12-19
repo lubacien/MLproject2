@@ -25,7 +25,9 @@ In order to run tf_aerial_images tensorflow must be downgraded. In order to get 
 In this section we explain how our project folder is organised and where to find the needed files.
 
 ### Data Folder
-This folder contains the train and test data in zip archives. Rexecuting run.py will unzip these folders and make the files availible.
+This folder contains the train and test data in zip archives. Rexecuting run.py will unzip these folders and make the files availible in the following directories:
+1.**training**: consists of the images and associated groundtruths.
+2.**test_set_images**: Consists of the images we use to test our model.
 
 ### Scripts folder
 All our project implementations can be found inside the /scripts folder.
