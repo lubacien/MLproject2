@@ -2,25 +2,25 @@ from tensorflow.python.keras import layers
 from tensorflow.python.keras import models
 
 
-def UNet(image_size):
+def UNet(image_size,kernel_size=(3,3)):
     def bn_act(x, act=True):
         x = layers.BatchNormalization()(x)
         if act == True:
             x = layers.Activation("relu")(x)
         return x
 
-    def conv_block(x, filters, kernel_size=(3, 3), padding="same", strides=1):
+    def conv_block(x, filters, kernel_size=kernel_size, padding="same", strides=1):
         conv = bn_act(x)
         conv = layers.Conv2D(filters, kernel_size, padding=padding, strides=strides)(conv)
         return conv
 
-    def stem(x, filters, kernel_size=(3, 3), padding="same", strides=1):
+    def stem(x, filters, kernel_size=kernel_size, padding="same", strides=1):
         conv = layers.Conv2D(filters, kernel_size, padding=padding, strides=strides)(x)
         conv = conv_block(conv, filters, kernel_size=kernel_size, padding=padding, strides=strides)
 
         return conv
 
-    def block(x, filters, kernel_size=(3, 3), padding="same", strides=1):
+    def block(x, filters, kernel_size=kernel_size, padding="same", strides=1):
         res = conv_block(x, filters, kernel_size=kernel_size, padding=padding, strides=strides)
         res = conv_block(res, filters, kernel_size=kernel_size, padding=padding, strides=1)
 
